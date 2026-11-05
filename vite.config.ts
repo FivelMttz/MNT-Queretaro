@@ -5,11 +5,19 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    // GitHub Pages sirve el sitio en https://usuario.github.io/REPO/
+    // La base debe coincidir con el nombre del repositorio para que
+    // los assets (/assets/*.js, *.css) se resuelvan correctamente.
+    base: process.env.GITHUB_ACTIONS ? '/MNT-Queretaro/' : '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
+    },
+    build: {
+      outDir: 'dist',
+      assetsDir: 'assets',
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
