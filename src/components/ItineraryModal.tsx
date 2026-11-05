@@ -48,8 +48,6 @@ export const ItineraryModal: React.FC<ItineraryModalProps> = ({
   const [filterType, setFilterType] = useState<'all' | 'play' | 'academic'>('all');
   const [selectedDay, setSelectedDay] = useState<number | null>(null); // null = Todos los días
 
-  if (!isOpen) return null;
-
   // Unify plays and academic activities into a single chronological array
   const unifiedItems: UnifiedItineraryItem[] = useMemo(() => {
     const list: UnifiedItineraryItem[] = [
@@ -157,6 +155,11 @@ export const ItineraryModal: React.FC<ItineraryModalProps> = ({
   };
 
   const selectedDayMeta = selectedDay !== null ? FESTIVAL_DAYS.find(d => d.day === selectedDay) : null;
+
+  // IMPORTANTE: este return debe ir DESPUÉS de todos los hooks.
+  // Si se coloca antes, React recibe distinto número de hooks al abrir/cerrar
+  // y lanza "Rendered more hooks than during the previous render" (pantalla en blanco).
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">

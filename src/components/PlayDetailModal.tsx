@@ -54,15 +54,29 @@ export const PlayDetailModal: React.FC<PlayDetailModalProps> = ({
       <div className="fixed inset-0" onClick={onClose} />
 
       {/* Modal Dialog Container */}
-      <div className="relative w-full max-w-4xl bg-white rounded-none sm:rounded-2xl shadow-2xl overflow-hidden z-10 max-h-[100vh] sm:max-h-[92vh] flex flex-col text-left">
-        {/* Close Button Top Right */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2.5 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-md transition-colors"
-          aria-label="Cerrar detalle"
+      <div className="relative w-full max-w-4xl bg-white rounded-none sm:rounded-2xl shadow-2xl overflow-hidden z-10 max-h-[100dvh] sm:max-h-[92vh] flex flex-col text-left">
+        {/* Barra superior fija: el botón X siempre visible, lejos del notch */}
+        <div
+          className="sticky top-0 z-30 flex items-center justify-between gap-2 px-3 sm:px-5 bg-[#1F1D1B] text-white border-b border-[#34302C] shrink-0"
+          style={{
+            paddingTop: 'calc(0.5rem + env(safe-area-inset-top, 0px))',
+            paddingBottom: '0.5rem',
+          }}
         >
-          <X className="w-5 h-5" />
-        </button>
+          <span className="font-display text-[11px] sm:text-xs font-bold uppercase tracking-wider text-stone-300 truncate">
+            Detalle de la obra
+          </span>
+
+          {/* Área táctil de 48px: cumple el mínimo recomendado en móvil */}
+          <button
+            onClick={onClose}
+            type="button"
+            className="flex items-center justify-center shrink-0 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 active:bg-[#D99B26] active:text-[#1F1D1B] text-white transition-colors cursor-pointer"
+            aria-label="Cerrar detalle"
+          >
+            <X className="w-6 h-6" strokeWidth={2.5} />
+          </button>
+        </div>
 
         {/* Scrollable Content */}
         <div className="overflow-y-auto flex-1 pb-16 sm:pb-8">
