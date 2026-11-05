@@ -1,0 +1,6 @@
+{
+  "name": "46 MNT Querétaro 2026 - Muestra Nacional de Teatro",
+  "description": "Portal Web Oficial y Programación de la 46 Muestra Nacional de Teatro en Querétaro 2026: 30 puestas en escena, 21 sedes, actividades académicas y curaduría.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

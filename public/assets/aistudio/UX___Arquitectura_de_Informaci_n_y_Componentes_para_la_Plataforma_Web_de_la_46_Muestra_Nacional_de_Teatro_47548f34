@@ -1,0 +1,210 @@
+﻿Especificación de Requerimientos de Software (SRS UI/UX): Arquitectura de Información y Componentes para la Plataforma Web de la 46 Muestra Nacional de Teatro
+1. Ficha Técnica y Marco de Diseño UI/UX
+El presente documento constituye la Especificación de Requerimientos de Software orientada a los equipos de  Diseño UI/UX, Prototipado e Ingeniería Frontend  para la construcción del Portal Web Oficial de la  46 Muestra Nacional de Teatro (Querétaro 2026) . A diferencia de un inventario editorial tradicional, este artefacto prescinde de los textos literarios y sinopsis extensas para concentrarse exclusivamente en la arquitectura de información, la definición de estructuras, los patrones de interacción, el sistema de componentes y los formatos de datos que el equipo de diseño requiere para maquetar los  wireframes  y el prototipo interactivo en Figma.
+La plataforma web de la 46 MNT debe actuar como un centro de consulta dinámico, accesible y de alta respuesta para asistentes, teatristas, crítica especializada y medios de comunicación. Su meta fundamental es estructurar una oferta de 30 puestas en escena seleccionadas, 4 convocatorias nacionales, un circuito de 21 sedes en la capital y municipios de Querétaro, así como las actividades académicas del encuentro.
+Ficha Resumen de Proyecto UI/UX
+* Nombre del Proyecto Digital : Portal Web Oficial 46 MNT Querétaro 2026.
+* Enfoque de Diseño :  Mobile-First , accesible (WCAG 2.1 Nivel AA), orientado a componentes modulares y navegación libre de fricción.
+* Perfiles de Usuario Principales :
+* Espectador General / Público Local : Requiere respuesta rápida a las preguntas "¿Qué obra hay hoy?", "¿Dónde está la sede?" y "¿Cómo llego?".
+* Gremio Teatral y Participantes MNT : Consultan fichas técnicas detalladas, créditos de creadores, apoyos institucionales y actividades de mediación.
+* Prensa y Curaduría : Acceden a textos editoriales, comunicados y programación completa categorizada por estado y disciplina.
+* Alcance del Handoff : Maquetación de 6 plantillas de vista principales, 5 componentes globales reutilizables y un sistema de tokens visuales y de interacción.
+2. Sistema de Tokens Visuales y Grid Responsive
+Para garantizar una experiencia cohesiva que refleje la identidad gráfica del festival —inspirada en los tonos cálidos, la memoria industrial y la iconografía del Bajío mexicano— se define un sistema de  Design Tokens  que los diseñadores de UI deben incorporar directamente en sus estilos globales de Figma.
+Los valores cromáticos y tipográficos deben ser aplicados como variables globales ( CSS Variables / Figma Tokens ) para facilitar su mantenimiento y accesibilidad.
+Paleta Cromática y Jerarquía de Color
+El esquema cromático transmite la calidez del territorio queretano (dorados, ocres y terracota) en contraste con fondos limpios y contrastantes que facilitan la lectura en pantallas móviles expuestas a luz solar en exteriores.
+* Primary Brand / Ocre Querétaro (  #D99B26  ) : Reservado para elementos interactivos primarios, botones de llamada a la acción (CTA), bordes activos y acentos de navegación.
+* Secondary Terracotta / Arcilla (  #8C3B2B  ) : Utilizado para badges de clasificación por edad, indicadores de sedes regionales y estados hover secundarios.
+* Neutral Dark / Carbono Deep (  #1F1D1B  ) : Utilizado en textos principales, headers dinámicos y fondos de footer institucionales para asegurar alto contraste.
+* Neutral Light / Papel Warm (  #F9F6F0  ) : Tono de fondo de pantalla general para evitar el deslumbramiento del blanco puro y mantener una estética orgánica.
+* Accent Support / Dorado Sol (  #E6B040  ) : Destacado en notificaciones, etiquetas de inauguración y estados seleccionados en calendarios.
+* Feedback System :
+* Success (  #2E7D32  ) : Confirmación de agenda o copia de enlace.
+* Warning / Sold Out (  #C62828  ) : Indicador de cupo lleno en salas.
+* Info (  #0277BD  ) : Tags de eventos académicos y conversatorios.
+Escala Tipográfica y Ley de Legibilidad
+La estructura tipográfica debe combinar una tipografía  Display  con carácter geométrico/artesanal para titulares principales y una familia  Sans-Serif  de alta legibilidad para datos técnicos y bloques descriptivos.
+Nivel UI,Variable Token,Tamaño (Desktop / Mobile),Peso Font,Interlineado,Uso en Maqueta
+H1 Display,--font-h1,48px / 32px,Bold (700),1.15,Títulos de Home y Obra
+H2 Section,--font-h2,32px / 24px,SemiBold (600),1.20,Encabezados de Sección
+H3 Card Title,--font-h3,22px / 18px,SemiBold (600),1.25,Títulos en Tarjetas y Grid
+Body Base,--font-body,16px / 15px,Regular (400),1.50,"Sinopsis, Textos y Curaduría"
+Meta / Small,--font-meta,14px / 13px,Medium (500),1.40,"Fichas Técnicas, Fechas y Sedes"
+Tag / Label,--font-tag,12px / 11px,Bold (700) Caps,1.00,"Badges de Edad, Estado y Hora"
+Sistema de Grid Layout y Responsive Breakpoints
+El diseño debe maquetarse considerando un sistema de rejilla flexible basado en  8px  ( 8pt Grid System ) con tres puntos de ruptura ( breakpoints ) obligatorios:
+* Mobile Viewport (375px - 767px) :
+* Columnas: 4 columnas.
+* Márgenes laterales: 16px.
+* Gutter (separación): 12px.
+* Navegación: Menú lateral emergente ( Drawer ) y barra inferior de accesos rápidos ( Bottom Nav ).
+* Tablet Viewport (768px - 1439px) :
+* Columnas: 8 columnas.
+* Márgenes laterales: 32px.
+* Gutter: 20px.
+* Navegación: Header superior colapsable con submenús.
+* Desktop Viewport (1440px +) :
+* Columnas: 12 columnas (Ancho máximo del contenedor: 1280px).
+* Márgenes laterales: Auto (centrado).
+* Gutter: 24px.
+* Navegación: Header estático/sticky multitabla con buscador integrado.
+3. Librería de Componentes Reutilizables (UI Spec & Slot Formats)
+La maquetación en Figma debe articularse mediante componentes maestros configurables con  Auto-Layout  e instancias de  Slots  predefinidos. A continuación se especifican los 5 componentes centrales de la arquitectura web.
+Componente 01: Card de Puesta en Escena (Card-Obra)
+El contenedor principal de listado debe presentar de forma ordenada los metadatos críticos de cada obra sin saturar la vista.
+* Proporción Multimedia (Media Slot) : Aspect Ratio 16:9 o 4:3 para la fotografía de portada de la obra, con efecto de degradado oscuro inferior para superponer etiquetas de fecha.
+* Zona Superior (Header Badges) :
+* Badge Izquierdo (Estado de Origen) : Pill de color neutro con texto de estado (e.g., MORELOS, YUCATÁN).
+* Badge Derecho (Clasificación) : Pill de acento con código de edad (e.g., 10+, 18+).
+* Zona Central (Content Slot) :
+* Título de la Obra : Tipografía H3 (máximo 2 líneas de texto con elipsis ...).
+* Compañía / Colectivo : Texto secundario en itálica o peso medio.
+* Sede de Presentación : Icono de pin de ubicación + Nombre del recinto.
+* Zona Inferior (Footer Metadatos) :
+* Icono de Reloj + Duración : Texto XX min.
+* Fecha / Calendario : Tag destacado con Día y Mes (e.g., 05 NOV).
+* Acción / Trigger : Toda la tarjeta es clickable y redirige al detalle de la obra (/obras/:slug).
+Componente 02: Barra de Filtros Dinámicos (FilterBar)
+Ubicada en la parte superior del Programa General, este componente permite la exploración fluida del catálogo.
+* Control 01: Selector de Fechas (Timeline Slider / Day Chips) :
+* Fila horizontal de botones deslizables con los días del festival (NOV 5 al NOV 14).
+* Estado Seleccionado: Fondo Ocre Querétaro con texto en blanco.
+* Opción Todos los días al inicio de la lista.
+* Control 02: Selector Desplegable por Sede :
+* Dropdown multinivel que agrupa sedes por zona:  Querétaro Centro ,  Municipios (Amealco/Jalpan)  y  Espacios de Calle .
+* Control 03: Selector por Clasificación de Edad :
+* Chips multiselección: Infantiles (0-5), Jóvenes (6-12), Adolescentes (13-17) y Adultos (18+).
+* Control 04: Campo de Búsqueda Libre (Input) :
+* Campo con icono de lupa para filtrado en tiempo real por título, director, dramaturgx o estado.
+* Control 05: Botón de Limpieza (  Clear Filters  ) :
+* Visibilidad condicional activada cuando hay filtros aplicados.
+Componente 03: Ficha y Tarjeta de Sede Escénica (Card-Sede)
+Componente dual que funciona como elemento de listado y como ventana emergente ( InfoWindow ) dentro del mapa interactivo.
+* Slot de Encabezado : Nombre oficial del recinto en H3 + Icono indicativo de infraestructura (Teatro cerrado, Foro al aire libre, Espacio público).
+* Slot de Dirección : Dirección completa (Calle, número, colonia, municipio).
+* Slot de Capacidad y Accesibilidad : Badges de aforo aproximado e iconos de rampas/acceso en silla de ruedas.
+* Botón de Acción Directa : Enlace de geolocalización Abrir en Google Maps / Waze.
+* Slot de Programación Vinculada : Fila colapsable ( Accordion ) que despliega los títulos y horarios de las obras que se presentan en dicha sede.
+Componente 04: Navegación Global (Header Navbar)
+* Barra Superior Institucional : Contenedor compacto con logos de la Secretaría de Cultura, INBAL, Coordinación Nacional de Teatro y Gobierno de Querétaro.
+* Barra Principal de Navegación :
+* Brand Logo : Identificador tipográfico oficial 46 MNT.
+* Navegación Desktop (Links) : Inicio, Programa General, Sedes & Mapa, Curaduría, Actividades Académicas, Créditos.
+* Acción Destacada (CTA Button) : Botón Descargar Programa PDF.
+* Control Mobile : Icono de Menú Hamburguesa que despliega un panel lateral a pantalla completa.
+Componente 05: Pie de Página Institucional (Footer)
+* Bloque 1 (Logotipos Oficiales) : Matriz responsiva con la totalidad de marcas institucionales y convocantes.
+* Bloque 2 (Mapa del Sitio) : Enlaces jerárquicos a las secciones principales del portal.
+* Bloque 3 (Canales Oficiales) : Iconos de redes sociales (@muestranacionaldeteatro, @teatroinbal, @secultqro) y dominio web oficial (mnt.inba.gob.mx).
+* Bloque 4 (Legales y Créditos Digitales) : Texto de copyright institucional, políticas de privacidad y declaración de accesibilidad.
+4. Especificación UI/UX Página por Página (Layout Blueprints)
+A continuación se detalla la estructura visual y de contenidos por ranuras ( slots ) de las 6 vistas principales de la plataforma web.
+Vista 01: Inicio / Landing Page (/)
+Diseñada como una portada de impacto visual que introduce el concepto curatorial y orienta de inmediato al usuario hacia la cartelera del día.
+Estructura de Ranuras (Slots Layout)
+* Slot 1: Hero Banner Interactivo / Carousel de Impacto :
+* Fotografía/Ilustración oficial a pantalla completa con degradado inferior.
+* Headline: 46 Muestra Nacional de Teatro - Querétaro 2026.
+* Subhead: Sean bienvenidxs a respirar juntxs | Del 5 al 14 de Noviembre.
+* Contenedor CTA: Botón Principal Ver Programación de Hoy y Botón Secundario Explorar Mapa de Sedes.
+* Slot 2: Módulo de Estadísticas Clave (Grid de 4 Columnas) :
+* Indicador 1: 30 Puestas en Escena.
+* Indicador 2: 27 Estados Representados.
+* Indicador 3: 21 Sedes Escénicas.
+* Indicador 4: 10 Días de Encuentro.
+* Slot 3: Cartelera Dinámica "Hoy en la Muestra" :
+* Barra compacta de selector de fecha.
+* Grid responsivo con Cards-Obra programadas para el día en curso.
+* Enlace al programa completo: Ver Cartelera Completa.
+* Slot 4: Extracto Curatorial y Mensaje Institucional :
+* Diseño a 2 columnas (Extracto editorial + Fotografía de la Dirección Artística).
+* Enlace: Leer Manifiesto Curatorial Completo.
+* Slot 5: Carrusel de Sedes Destacadas :
+* Tarjetas con imagen de recintos principales (e.g., Teatro de la Ciudad, Museo de la Ciudad).
+Vista 02: Programa General y Cartelera (/programa)
+El núcleo operativo de la plataforma. Debe permitir alternar entre dos modos de visualización para adaptarse a las preferencias de exploración del usuario.
+* Header de Página : Título de la sección + Control Toggle de Vista (Vista Grid / Tarjetas vs. Vista Calendario / Timeline).
+* Módulo de Filtrado (FilterBar Component) : Fijado en la parte superior ( Sticky Position ) al hacer scroll.
+* Modo A: Grid de Tarjetas (Default View) :
+* Organizado en bloques cronológicos por día.
+* Cada día encabeza con un separador visual (e.g., Día 1: Miércoles 5 de Noviembre).
+* Grid responsivo de 3 columnas (Desktop), 2 columnas (Tablet), 1 columna (Mobile) de Cards-Obra.
+* Modo B: Vista Calendario / Timeline :
+* Tabla/Matriz interactiva donde el eje Y representa las Sedes y el eje X representa los bloques horarios del día.
+* Bloques de eventos clickables que muestran una vista previa emergente ( Modal Preview ).
+* Paginación / Load More : Carga infinita con botón de respaldo Cargar más funciones.
+Vista 03: Detalle de Puesta en Escena (/obras/:slug)
+La plantilla donde se despliega la totalidad de la información artística, técnica e institucional de cada montaje.
+Estructura de Ranuras (Slots Layout)
+* Slot 1: Hero de Puesta en Escena :
+* Imagen de portada a ancho completo (Aspect Ratio 21:9 en Desktop).
+* Overlay con Badges: Estado de Origen, Clasificación de Edad, Duración en minutos.
+* Título de la Obra (H1) + Compañía Creadora.
+* Slot 2: Panel de Datos de Función (Fixed Sidebar / Top Card Mobile) :
+* Nombre de la Sede + Dirección con enlace a mapa.
+* Fecha y Hora exacta de la función.
+* Indicador de Acceso / Aforo.
+* Botones de Acción: Agregar a Google Calendar / iCal y Ver Ubicación de la Sede.
+* Slot 3: Fichas Modulares de Contenido :
+* Contenedor A: Sinopsis de la Obra.
+* Contenedor B: Ficha Artística (Autoría, Dirección, Reparto / Elenco).
+* Contenedor C: Ficha Técnica (Escenografía, Iluminación, Vestuario, Producción).
+* Contenedor D: Créditos e Instituciones Apoyantes (SACPC, PECDA, etc.).
+* Slot 4: Galería Fotográfica de la Puesta en Escena :
+* Carrusel de imágenes de alta resolución con pie de foto de crédito fotográfico.
+* Slot 5: Recomendaciones (Obras Relacionadas) :
+* Grid de 3 Cards-Obra programadas en la misma sede o fecha.
+Vista 04: Directorio de Sedes y Mapa Interactivo (/sedes)
+Vista enfocada en la ubicación espacial y la logística de traslado entre recintos.
+* Layout Dual Flex (Desktop) :
+* Panel Izquierdo (4 Columnas) : Lista de sedes en acordeón con filtro por Municipio ( Santiago de Querétaro ,  Amealco de Bonfil ,  Jalpan de Serra ,  Pinal de Amoles ).
+* Panel Derecho (8 Columnas) : Mapa interactivo (Google Maps API / Mapbox API) con marcadores personalizados (Pins numerados por sede).
+* Comportamiento Mobile : Pestañas superiores para alternar entre Ver Lista de Sedes y Ver Mapa Fullscreen.
+* Interacción de Marcador : Al hacer clic en un pin del mapa, el panel lateral se desplaza automáticamente ( smooth scroll ) hacia la Card-Sede correspondiente y despliega su InfoWindow.
+Vista 05: Sección Editorial y Curaduría (/curaduria)
+Espacio dedicado al discurso intelectual, la historia y la línea curatorial de la edición.
+* Header Editorial : Título "Sean bienvenidxs a respirar juntxs" + Subtítulo "Dirección Artística 46 MNT".
+* Layout Tipo Lectura (Single Column / 800px max-width) :
+* Bloque de texto fluido en tipografía body con interlineado amplio.
+* Blockquotes destacados con frases clave del manifiesto curatorial.
+* Grid de Perfiles de la Dirección Artística :
+* 6 Tarjetas de perfil con foto, nombre completo y reseña de los integrantes del cuerpo curatorial (Esmeralda Aragón, Jorge A. Vargas, José Uriel García Solís, Sara Pinedo, Verónica Carranco).
+* Módulo de Convocatorias Nacionales :
+* Cuadrícula de 4 tarjetas descriptivas:  Muestra de Diseño Escénico Integral ,  Radar de Pensamiento Crítico ,  Jóvenes a la Muestra , y  Convocatoria de Programación .
+Vista 06: Actividades Académicas y Encuentro (/actividades)
+Plantilla modular para la agenda de talleres, laboratorios, mesas de diálogo y eventos paralelos.
+* Estructura por Pestañas (Tabs Component) :
+* Tab 1 : Laboratorio de Creación e Investigación Social.
+* Tab 2 : Radar de Pensamiento Crítico.
+* Tab 3 : Mesas de Diálogo y Presentaciones Editoriales.
+* Card de Actividad Académica :
+* Header : Categoría de actividad + Requisitos de ingreso (Entrada libre / Registro previo).
+* Body : Título del taller/mesa + Nombre del facilitador/a o colectivo docente.
+* Meta : Sede de realización, fechas y horario específico.
+5. Matriz de Estados de Interfaz y Flujos de Usuario
+Los diseñadores UI/UX deben incluir en el sistema de entregables en Figma los estados de pantalla de excepción y las micro-interacciones para guiar a los desarrolladores en la implementación.
+Matriz de Estados de Componentes (UI States)
+Componente,Estado Default,Estado Hover / Active,Estado Loading (Skeleton),Estado Empty / Error
+Card-Obra,"Sombra leve, opacidad de foto al 100%.","Elevación de sombra (Y: 8px), zoom ligero en foto (scale 1.03).",Block de proporciones idénticas con animación de brillo ( shimmer effect ).,N/A (se gestiona a nivel de catálogo).
+FilterBar,Inputs y dropdowns con borde gris neutro.,"Borde en Ocre Querétaro, dropdown desplegado con sombra.",Desactivado ( disabled opacity 50% ).,N/A.
+Grid de Cartelera,Lista completa de obras ordenadas por hora.,N/A.,6 Skeletons en grid responsivo.,"Ilustración de ""No se encontraron funciones"" + Botón Restablecer Filtros."
+Mapa Interactivo,Pins estáticos con color de marca.,Pin aumenta de tamaño + InfoWindow visible.,Map Canvas con spinner centrado.,Mensaje de error de carga de mapas con lista alternativa en texto.
+Flujos Principales de Usuario (User Journeys)
+* Flujo A: Búsqueda Rápida de Función para el Día Actual (Mobile User) :
+* Paso 1 : El usuario ingresa a la Home (/).
+* Paso 2 : Presiona el chip de fecha actual en el banner "Hoy en la Muestra".
+* Paso 3 : Examina las Cards-Obra disponibles y filtra por horario.
+* Paso 4 : Toca una tarjeta, consulta la sede y hace clic en Ver Ubicación en Maps para iniciar navegación GPS.
+* Flujo B: Consulta de Créditos y Ficha Técnica por Creador (Gremio/Prensa) :
+* Paso 1 : El usuario ingresa a Navegación -> Programa General.
+* Paso 2 : Escribe el nombre del director o compañía en el campo de búsqueda de la FilterBar.
+* Paso 3 : Selecciona la obra resultante y navega hasta el bloque de  Ficha Artística y Técnica .
+* Paso 4 : Visualiza el desglose completo de roles y los apoyos institucionales recibidos.
+6. Entregables Requeridos para el Equipo UI/UX
+Para considerar completada la fase de diseño UI/UX y dar paso al desarrollo Frontend, el equipo de diseño deberá entregar en la carpeta oficial del proyecto los siguientes insumos:
+1. Figma UI Styleguide & Design System : Archivo de Figma publicado como librería con todos los Color Tokens, Typography Styles, Spacing Variables y Componentes Maestros con variantes.
+2. Kits de Wireframes High-Fidelity : Visualización de las 6 plantillas de vista especificadas en sus versiones  Desktop (1440px) ,  Tablet (768px)  y  Mobile (375px) .
+3. Prototipo Interactivo (Figma Prototype) : Flujo navegable que demuestre la alternancia de filtros, apertura de modales de sedes, navegación entre vistas y estados del menú mobile.
+4. Handoff de Assets Gráficos : Exportación organizada de iconos en SVG, favicons y logos institucionales vectorizados.
