@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { PLAYS, VENUES, FESTIVAL_DAYS, Play, Venue, OFFICIAL_LINKS } from '../data/mntData';
+import React, { useState, useMemo } from 'react';
+import { PLAYS, VENUES, FESTIVAL_DAYS, ACADEMIC_ACTIVITIES, Play, Venue, AcademicActivity, OFFICIAL_LINKS } from '../data/mntData';
 import { PlayCard } from '../components/PlayCard';
+import { getActivityDayNumbers } from '../utils/academicDates';
 import { 
   Calendar, MapPin, ArrowRight, Compass, 
   Theater, Users, Clock, ChevronRight,
@@ -41,6 +42,36 @@ export const HomeView: React.FC<HomeViewProps> = ({
   });
 
   const selectedDayMeta = FESTIVAL_DAYS.find(d => d.day === selectedHomeDay);
+
+  // Actividades académicas que se imparten cada día.
+  // Una actividad con varios días (ej. "Lunes 9 al Viernes 13") aparece en todos ellos.
+  const academicByDay = useMemo(() => {
+    const map = new Map<number, AcademicActivity[]>();
+    ACADEMIC_ACTIVITIES.forEach((activity) => {
+      getActivityDayNumbers(activity).forEach((day) => {
+        const list = map.get(day) || [];
+        list.push(activity);
+        map.set(day, list);
+      });
+    });
+    // Orden cronológico dentro de cada día
+    map.forEach((list) => list.sort((a, b) => a.time.localeCompare(b.time)));
+    return map;
+  }, []);
+
+  // Conteo por día (obras + actividades) para el rail de fechas
+  const dayCounts = useMemo(() => {
+    const counts = new Map<number, { plays: number; activities: number }>();
+    FESTIVAL_DAYS.forEach((d) => {
+      counts.set(d.day, {
+        plays: PLAYS.filter((p) => p.dayNumber === d.day).length,
+        activities: academicByDay.get(d.day)?.length ?? 0,
+      });
+    });
+    return counts;
+  }, [academicByDay]);
+
+  const dayActivities = academicByDay.get(selectedHomeDay) ?? [];
 
   // Active venues for the selected day
   const activeDayVenues = Array.from(
@@ -357,7 +388,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           <div className="flex items-center gap-2 self-start sm:self-end">
             <span className="text-xs font-semibold text-stone-600 bg-stone-100 px-2.5 py-1 rounded-lg">
-              {baseDayPlays.length} {baseDayPlays.length === 1 ? 'función' : 'funciones'} programadas
+              {baseDayPlays.length} {baseDayPlays.length === 1 ? 'función' : 'funciones'}
+              {dayActivities.length > 0 && (
+                <span className="text-[#8C3B2B]"> · {dayActivities.length} {dayActivities.length === 1 ? 'académica' : 'académicas'}</span>
+              )}
             </span>
 
             <button
@@ -375,7 +409,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 scrollbar-none -mx-3 px-3 sm:mx-0 sm:px-0">
             {FESTIVAL_DAYS.map((d) => {
               const isSelected = selectedHomeDay === d.day;
-              const playsCount = PLAYS.filter(p => p.dayNumber === d.day).length;
+              const counts = dayCounts.get(d.day) ?? { plays: 0, activities: 0 };
+              const total = counts.plays + counts.activities;
               return (
                 <button
                   key={d.day}
@@ -397,7 +432,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     {d.day}
                   </span>
                   <span className={`text-[9px] font-semibold ${isSelected ? 'text-[#1F1D1B]' : 'text-stone-500'}`}>
-                    {playsCount} {playsCount === 1 ? 'obra' : 'obras'}
+                    {total} {total === 1 ? 'evento' : 'eventos'}
                   </span>
                 </button>
               );
@@ -519,6 +554,86 @@ export const HomeView: React.FC<HomeViewProps> = ({
             })
           )}
         </div>
+
+        {/* ============================================================ */}
+        {/* ACTIVIDADES ACADÉMICAS DEL DÍA (móvil + escritorio)           */}
+        {/* ============================================================ */}
+        {dayActivities.length > 0 && (
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-stone-200/80">
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-[#8C3B2B] uppercase tracking-wider">
+                <Users className="w-3.5 h-3.5" />
+                <span>Actividades Académicas del Día</span>
+              </div>
+              <button
+                onClick={() => onNavigateTab('actividades')}
+                className="text-xs font-bold text-[#8C3B2B] hover:text-[#5e261b] inline-flex items-center gap-0.5 py-1 px-1.5"
+              >
+                <span>Ver todas</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {dayActivities.map((activity) => {
+                const activityDays = getActivityDayNumbers(activity);
+                const isMultiDay = activityDays.length > 1;
+                return (
+                  <div
+                    key={activity.id}
+                    onClick={() => onNavigateTab('actividades')}
+                    className="bg-amber-50/40 rounded-2xl border border-amber-200/80 hover:border-[#D99B26] p-4 transition-all cursor-pointer space-y-2.5"
+                  >
+                    {/* Fila 1: Hora + categoría */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-display font-black text-sm text-[#8C3B2B] bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60 flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" />
+                        {activity.timeDisplay}
+                      </span>
+                      <span className="text-[10px] font-bold text-[#8C3B2B] bg-[#8C3B2B]/10 px-2 py-0.5 rounded">
+                        {activity.category}
+                      </span>
+                      {activity.accessRequirement && (
+                        <span className="text-[10px] font-semibold text-stone-600 bg-stone-100 px-2 py-0.5 rounded">
+                          {activity.accessRequirement}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Fila 2: Título y responsables */}
+                    <div>
+                      <h3 className="font-display font-black text-base text-[#1F1D1B] leading-snug">
+                        {activity.title}
+                      </h3>
+                      {activity.subtitle && (
+                        <p className="text-xs text-stone-500 italic mt-0.5">
+                          {activity.subtitle}
+                        </p>
+                      )}
+                      <div className="text-xs text-[#8C3B2B] font-semibold mt-1">
+                        {activity.facilitators}
+                      </div>
+                    </div>
+
+                    {/* Fila 3: Sede + vigencia */}
+                    <div className="pt-2 border-t border-amber-200/60 flex items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-1.5 text-stone-600 truncate flex-1">
+                        <MapPin className="w-3.5 h-3.5 text-[#D99B26] shrink-0" />
+                        <span className="truncate font-medium">{activity.venue}</span>
+                      </div>
+
+                      {isMultiDay && (
+                        <span className="shrink-0 text-[10px] font-bold text-[#8C3B2B] bg-[#8C3B2B]/10 px-2 py-0.5 rounded">
+                          Se repite · {activity.dates}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* ============================================================ */}
         {/* LISTADO DE FUNCIONES: VISTA ESCRITORIO GRID (hidden lg:grid)  */}
